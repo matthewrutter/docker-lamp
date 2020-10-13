@@ -6,46 +6,49 @@ services:
                 # Use MySql 5 image for best compatability
                 image: mysql:5
 
+                # Set the port to the default port for MYSQL and expose to same host port
                 ports:
-                        # Set the port to the default port for MYSQL and expose to same host port
                         - "3306:3306"
-
+                        
+                # Set the default root password for host access
                 environment:
-                        # Set the default root password for host access
-                        MYSQL_ROOT_PASSWORD: 'password'
+                        MYSQL_ROOT_PASSWORD: "password"
 
+                # Run startup scripts to fill databases with required data. Put any .sql load scripts you want to run in the startup_scripts folder
                 volumes:
-                        # Run startup scripts to fill databases with required data
                         - ./startup_scripts:/docker-entrypoint-initdb.d/
 
+                # Try to restart container if it crashes or stops
                 restart: always
 
 
         # Admin tools for the above database
-        phpmyadmin:
-                
+        phpmyadmin:          
                 # Use the latest phpmyadmin image
                 image: phpmyadmin:latest
 
-                ports:
-                        # Set the host port to 8080 and link it with port 80 in the container
+                # Set the host port to 8081 and link it with port 80 in the container
+                ports:                  
                         - "8081:80"
                 
+                # Try to restart container if it crashes or stops
                 restart: always
 
 
-        # Web server and php for dev files
+        # Web server for dev files
         www:
+                # Reference the dockerfile in the server directory for build instructions
+                build: ./server
 
-                build: .
-
+                # Set the host port to 8080 and link it with port 80 in the container
                 ports:
-                        # Set the host port to 8080 and link it with port 80 in the container
                         - "8080:80"
 
+                # Attach volume locally to html folder in container for active development
+                # Add command to copy application files in build file when using on server
                 volumes:
-                        # Run startup scripts to fill databases with required data
-                        - ./web:/var/www/html
+                        - ./server/app:/var/www/html
                 
+                # Try to restart container if it crashes or stops
                 restart: always
         
